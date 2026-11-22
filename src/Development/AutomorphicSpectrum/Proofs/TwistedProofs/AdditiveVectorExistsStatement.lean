@@ -1,12 +1,12 @@
 module
 
 public import Mathlib
-public import Development.AutomorphicSpectrum.Proofs.TwistedProofs.AdditiveVectorExists
 public import Development.AbelianVarietyTheory.Proofs.TwistedOperators.HasLenOfLatLen
+
+import Development.AbelianVarietyTheory.Proofs.TwistedOperators.LatticeAddVectorDetValuationStatement
 
 @[expose] public section
 
 open GlobalTheory.InertZeta
-set_option maxHeartbeats 1000000 in
-theorem _root_.GlobalTheory.T.additive_vector_exists : AddVec := by
-  first | exact @GlobalTheory.CompanionTheory.InertZeta.addVec | exact GlobalTheory.CompanionTheory.InertZeta.addVec | (intros; apply GlobalTheory.CompanionTheory.InertZeta.addVec <;> assumption)
+theorem _root_.GlobalTheory.T.additive_vector_exists : AddVec :=
+  @_root_.GlobalTheory.T.lattice_add_vector_det_valuation

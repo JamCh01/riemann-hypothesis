@@ -1,12 +1,14 @@
 module
 
 public import Mathlib
-public import Development.AutomorphicSpectrum.Proofs.TwistedProofs.TraceIndexFormula
 public import Development.AbelianVarietyTheory.Proofs.TwistedOperators.HasLenOfLatLen
+
+public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.CardIntegersModUniformizerEqQSq
+public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.TraceZeroIntegersModUniformizerCardOfCardSq
+import Development.AbelianVarietyTheory.Proofs.TwistedOperators.TraceZeroIntegersIndexInUniformizerMultiplesStatement
 
 @[expose] public section
 
 open GlobalTheory.InertZeta
-set_option maxHeartbeats 1000000 in
-theorem _root_.GlobalTheory.T.trace_index_formula : TraceIndex := by
-  first | exact @GlobalTheory.CompanionTheory.InertZeta.traceIndex | exact GlobalTheory.CompanionTheory.InertZeta.traceIndex | (intros; apply GlobalTheory.CompanionTheory.InertZeta.traceIndex <;> assumption)
+theorem _root_.GlobalTheory.T.trace_index_formula : TraceIndex :=
+  @_root_.GlobalTheory.T.traceZero_integers_index_in_uniformizer_multiples
