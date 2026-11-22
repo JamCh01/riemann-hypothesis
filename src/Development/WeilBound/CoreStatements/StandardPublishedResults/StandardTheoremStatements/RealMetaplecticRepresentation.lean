@@ -1,12 +1,13 @@
 module
 
-public import Development.WeilBound.ThetaLifts.Reductions.MetaplecticDerivatives.RealMetaplecticRepresentationHolds
+public import Development.AbelianVarietyTheory.PublishedTheorems.TwistedTraceFormula.RealMetaplecticRepresentation
+import CompanionTheory.ThickeningEstimates.LieGroupReduction.MetaplecticRepresentation.RealMetaplecticRepresentationHolds
 
 @[expose] public section
 
 namespace PositivityTheory.Stage1.PM
 
 theorem realMetaplecticRepresentation : GlobalTheory.Published.RealMetaplecticRepresentation :=
-  PositivityTheory.ThKR.realMetaplecticRepresentation_holds
+  CompanionTheory.ThKR.realMetaplecticRepresentation_holds
 
 end PositivityTheory.Stage1.PM
