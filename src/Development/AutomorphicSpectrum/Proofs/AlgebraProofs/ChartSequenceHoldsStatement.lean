@@ -1,13 +1,17 @@
 module
 
 public import Mathlib
-public import Development.AutomorphicSpectrum.Proofs.AlgebraProofs.ChartSequenceHolds
 public import Development.AutomorphicSpectrum.Statements.AlgebraStatements.HodgeTateNormComparison
 public import Development.AutomorphicSpectrum.Statements.GeometryStatements.IsPolLatticePlane
+
+public import Development.WeilBound.CoreStatements.HodgeTatePoints.DualUnique
+public import Development.WeilBound.CoreStatements.HodgeTatePoints.GcChart
+public import Development.WeilBound.CoreStatements.HodgeTatePoints.GdChartFin
+public import Development.WeilBound.CoreStatements.HodgeTatePoints.GdSplit
+import Development.WeilBound.CoreStatements.HodgeTatePoints.FinrankDualEqOfProjective
 
 @[expose] public section
 
 open Module NumberField GlobalTheory.CompanionTheory.Ar.HT TensorProduct
-set_option maxHeartbeats 1000000 in
-theorem _root_.GlobalTheory.T.chart_sequence_holds : ChartSequence := by
-  first | exact @GlobalTheory.CompanionTheory.Ar.HT.FinrankDualChartSequence.chartSequence | exact GlobalTheory.CompanionTheory.Ar.HT.FinrankDualChartSequence.chartSequence | (intros; apply GlobalTheory.CompanionTheory.Ar.HT.FinrankDualChartSequence.chartSequence <;> assumption)
+theorem _root_.GlobalTheory.T.chart_sequence_holds : ChartSequence :=
+  @_root_.PositivityTheory.HtPt.Ge.chart_sequence
