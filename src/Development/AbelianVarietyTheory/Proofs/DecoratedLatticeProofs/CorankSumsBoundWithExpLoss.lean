@@ -72,7 +72,7 @@ theorem bigH_mono {C D : ℝ} (hC : 0 ≤ C) (hCD : C ≤ D) (m f : ℕ) {b : �
   unfold Formalism.HermitianLatticeCounting.LatticeSumBounds.bigH
   apply Real.rpow_le_rpow_of_exponent_le hb
   have : (0:ℝ) ≤ (m:ℝ)^2 * f := by positivity
-  nlinarith
+  linarith [mul_le_mul_of_nonneg_right hCD this]
 
 end GlobalTheory.Core.Deg
 
@@ -103,7 +103,7 @@ theorem xiHyp_mono {C D : ℝ} (hC : 1 ≤ C) (hCD : C ≤ D) {k m f : ℕ} {b v
       rpow_le_rpow_both hH1 hHm (by positivity) (mul_le_mul_of_nonneg_right hCD hm0)
     have e2 : (bigH C m f b ^ (C * m) * NT) ^ (C * k) ≤ (bigH D m f b ^ (D * m) * NT) ^ (D * k) := by
       apply rpow_le_rpow_both
-      · nlinarith
+      · exact one_le_mul_of_one_le_of_one_le a1 hNT
       · exact mul_le_mul_of_nonneg_right a2 (by linarith)
       · positivity
       · exact mul_le_mul_of_nonneg_right hCD hk0
@@ -117,10 +117,10 @@ theorem params_mono {C D K K₀ : ℝ} (hC : 1 ≤ C) (hCD : C ≤ D) (hK : K �
   have hX : (0:ℝ) ≤ (m:ℝ) ^ 5 * f * Real.log b := by positivity
   refine ⟨h1, h2, h3, h4, h5, ?_, h7, h8, h9, ?_, le_rfl, ?_⟩
   · have := mul_le_mul_of_nonneg_right hK hX
-    nlinarith
+    linarith
   · refine h10.trans (Real.rpow_le_rpow_of_exponent_le (by linarith) ?_)
     have : (0:ℝ) ≤ (m:ℝ) * f := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   · have : (0:ℝ) ≤ D := by linarith
     exact Real.one_le_exp (by positivity)
 
@@ -135,7 +135,7 @@ theorem gam_absorb {C Gam : ℝ} (hC : 0 ≤ C) {k f : ℕ} (hf : 1 ≤ f) (hG :
   have hf' : (1:ℝ) ≤ f := by exact_mod_cast hf
   have hk : (0:ℝ) ≤ k := Nat.cast_nonneg k
   push_cast
-  nlinarith
+  linarith [le_mul_of_one_le_right hk hf']
 
 open Formalism.HermitianLatticeCounting.LatticeSumBounds in
 theorem ndRow_mono {C Gam : ℝ} (hC : 1 ≤ C) {k m f s : ℕ} {b g v : ℝ} {Xi : ℕ → ℝ}
@@ -154,11 +154,11 @@ theorem ndRow_mono {C Gam : ℝ} (hC : 1 ≤ C) {k m f s : ℕ} {b g v : ℝ} {X
       bigH (Real.exp 1 * C) m f b ^ (Real.exp 1 * C * ((s : ℝ) + m) * (m : ℝ) ^ 2) := by
     apply rpow_le_rpow_both hH1 hHm (by positivity)
     have : (0:ℝ) ≤ ((s : ℝ) + m) * (m : ℝ) ^ 2 := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   have eP : (C * s * f) ^ (6 * s * f) ≤ (Real.exp 1 * C * s * f) ^ (6 * s * f) := by
     apply pow_le_pow_left₀ (by positivity)
     have : (0:ℝ) ≤ (s : ℝ) * f := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   have eG := gam_absorb hC0 hf hG (k := k)
   unfold ndRow
   calc (2 / g) ^ ((s - 1) * k * f) * ((k : ℝ) * v) ^ (k * f) * Xi s * C ^ (k * f) *
@@ -191,16 +191,16 @@ theorem degRow_mono {C Gam : ℝ} (hC : 1 ≤ C) {k m f s : ℕ} {b g v : ℝ} {
       bigH (Real.exp 1 * C) m f b ^ (Real.exp 1 * C * ((s : ℝ) + m) * (m : ℝ) ^ 2) := by
     apply rpow_le_rpow_both hH1 hHm (by positivity)
     have : (0:ℝ) ≤ ((s : ℝ) + m) * (m : ℝ) ^ 2 := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   have eP : (C * s * f) ^ (6 * s * f) ≤ (Real.exp 1 * C * s * f) ^ (6 * s * f) := by
     apply pow_le_pow_left₀ (by positivity)
     have : (0:ℝ) ≤ (s : ℝ) * f := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   have eE : Real.exp (C * (m : ℝ) ^ 6 * f * Real.log b) ≤
       Real.exp (Real.exp 1 * C * (m : ℝ) ^ 6 * f * Real.log b) := by
     apply Real.exp_le_exp.2
     have : (0:ℝ) ≤ (m : ℝ) ^ 6 * f * Real.log b := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_right hCD this]
   have eQ : (C / k) ^ (k * f) ≤ (Real.exp 1 * C / k) ^ (k * f) := by
     apply pow_le_pow_left₀ (by positivity)
     exact div_le_div_of_nonneg_right hCD (Nat.cast_nonneg k)

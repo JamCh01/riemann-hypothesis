@@ -135,7 +135,7 @@ theorem zsumR_recip_le : GlobalTheory.Mem.An.ZeroCount → ∃ C : ℝ, ∀ (q :
     intro q _ χ hχ t
     refine (hC0 q χ hχ t).trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (Real.log_nonneg ?_))
     have : (1 : ℝ) ≤ q := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne q)
-    nlinarith [abs_nonneg t]
+    exact one_le_mul_of_one_le_of_one_le this (by linarith [abs_nonneg t])
   refine ⟨12 * D, ?_⟩
   intro q _ χ hχ T hT
   have hq : (1 : ℝ) ≤ q := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne q)
@@ -155,7 +155,7 @@ theorem zsumR_recip_le : GlobalTheory.Mem.An.ZeroCount → ∃ C : ℝ, ∀ (q :
       apply Finset.sum_congr rfl
       intro ρ _
       ring
-    have hLA : 0 ≤ Real.log (q * (T + 2)) := Real.log_nonneg (by nlinarith)
+    have hLA : 0 ≤ Real.log (q * (T + 2)) := Real.log_nonneg (one_le_mul_of_one_le_of_one_le hq (by linarith))
     calc ∑ ρ ∈ hfin.toFinset, (zmult χ ρ : ℝ) * (if 1 < |ρ.im| then 1 / ‖ρ‖ else 0)
         ≤ ∑ ρ ∈ hfin.toFinset, (zmult χ ρ : ℝ) * ∑ k ∈ Icc 1 ⌊T⌋₊, (k : ℝ)⁻¹ *
             ((if ρ ∈ zerosIn χ (k : ℝ) 1 then 1 else 0) + (if ρ ∈ zerosIn χ (-(k : ℝ)) 1 then 1 else 0)) := by
@@ -179,9 +179,9 @@ theorem zsumR_recip_le : GlobalTheory.Mem.An.ZeroCount → ∃ C : ℝ, ∀ (q :
             (hZ q χ hχ (-(k : ℝ)))
           rw [abs_neg] at e2
           have hlog : Real.log (q * (|(k : ℝ)| + 2)) ≤ Real.log (q * (T + 2)) := by
-            apply Real.log_le_log (by nlinarith [abs_nonneg (k : ℝ)])
+            apply Real.log_le_log (by positivity)
             rw [abs_of_nonneg (Nat.cast_nonneg k)]
-            nlinarith
+            exact mul_le_mul_of_nonneg_left (by linarith) (by linarith)
           have := mul_le_mul_of_nonneg_left hlog hD0
           linarith
       _ = 2 * D * Real.log (q * (T + 2)) * ∑ k ∈ Icc 1 ⌊T⌋₊, (k : ℝ)⁻¹ := by
@@ -196,16 +196,16 @@ theorem zsumR_recip_le : GlobalTheory.Mem.An.ZeroCount → ∃ C : ℝ, ∀ (q :
           have := Real.log_le_log hNpos hNT
           linarith
       _ ≤ 12 * D * Real.log (q * T) ^ 2 := by
-          have hqT : 2 ≤ (q : ℝ) * T := by nlinarith
+          have hqT : 2 ≤ (q : ℝ) * T := le_trans hT (le_mul_of_one_le_left (by linarith) hq)
           have hu : Real.log 2 ≤ Real.log (q * T) := Real.log_le_log (by norm_num) hqT
           have hl2 := Real.log_two_gt_d9
           have hA : Real.log (q * (T + 2)) ≤ 2 * Real.log (q * T) := by
-            have h := Real.log_le_log (by nlinarith : (0 : ℝ) < q * (T + 2))
-              (by nlinarith : (q : ℝ) * (T + 2) ≤ 2 * (q * T))
-            rw [Real.log_mul (by norm_num : (2 : ℝ) ≠ 0) (ne_of_gt (by nlinarith : (0 : ℝ) < q * T))] at h
+            have h := Real.log_le_log (by positivity : (0 : ℝ) < q * (T + 2))
+              (by linarith [mul_le_mul_of_nonneg_left hT (show (0 : ℝ) ≤ q by linarith)] : (q : ℝ) * (T + 2) ≤ 2 * (q * T))
+            rw [Real.log_mul (by norm_num : (2 : ℝ) ≠ 0) (ne_of_gt (by positivity : (0 : ℝ) < q * T))] at h
             linarith
           have hB : 1 + Real.log T ≤ 3 * Real.log (q * T) := by
-            have := Real.log_le_log (by linarith : (0 : ℝ) < T) (by nlinarith : T ≤ (q : ℝ) * T)
+            have := Real.log_le_log (by linarith : (0 : ℝ) < T) (le_mul_of_one_le_left (by linarith) hq : T ≤ (q : ℝ) * T)
             linarith
           have hB0 : 0 ≤ 1 + Real.log T := by
             have := Real.log_nonneg (by linarith : (1 : ℝ) ≤ T)
@@ -221,6 +221,6 @@ theorem zsumR_recip_le : GlobalTheory.Mem.An.ZeroCount → ∃ C : ℝ, ∀ (q :
     refine h.trans ?_
     have h1 : Real.log (q * 2) ≤ Real.log (3 * q) := Real.log_le_log (by linarith) (by linarith)
     have h2 : 0 ≤ Real.log (3 * q) := Real.log_nonneg (by linarith)
-    nlinarith [mul_le_mul_of_nonneg_left h1 hD0, mul_nonneg hD0 h2]
+    linarith [mul_le_mul_of_nonneg_left h1 hD0, mul_nonneg hD0 h2]
 
 end GlobalTheory.Mem.An

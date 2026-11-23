@@ -104,22 +104,22 @@ theorem quad_round_step (hs : ∀ x y, Bf x y = Bf y x) (hQ : ∀ x, 2 * Q x = B
     rw [key]
     set t := a + N * m
     have hsq : (2 * Q w * t + Bf y w) ^ 2 ≤ (N * Q w) ^ 2 := by
-      nlinarith
+      linarith [mul_nonneg (show 0 ≤ N * Q w - (2 * Q w * t + Bf y w) by linarith) (show 0 ≤ N * Q w + (2 * Q w * t + Bf y w) by linarith)]
     have hmul : Q w * (4 * (t * Bf y w + t ^ 2 * Q w)) ≤ Q w * (N ^ 2 * Q w) := by
-      nlinarith [sq_nonneg (Bf y w)]
+      linarith [sq_nonneg (Bf y w)]
     have := le_of_mul_le_mul_left hmul hq
     linarith
   · by_cases hB : 0 ≤ Bf y w
     · refine ⟨-|a|, ?_⟩
       rw [key, ← hq]
       have h1 : a + N * -|a| ≤ 0 := by
-        nlinarith [le_abs_self a, abs_nonneg a]
-      nlinarith
+        linarith [le_abs_self a, le_mul_of_one_le_left (abs_nonneg a) (show (1 : ℤ) ≤ N by omega)]
+      linarith [mul_nonpos_of_nonpos_of_nonneg h1 hB]
     · refine ⟨|a|, ?_⟩
       rw [key, ← hq]
       have h1 : 0 ≤ a + N * |a| := by
-        nlinarith [neg_abs_le a, abs_nonneg a]
-      nlinarith
+        linarith [neg_abs_le a, le_mul_of_one_le_left (abs_nonneg a) (show (1 : ℤ) ≤ N by omega)]
+      linarith [mul_nonpos_of_nonneg_of_nonpos h1 (show Bf y w ≤ 0 by omega)]
 
 theorem quad_round_sum (hs : ∀ x y, Bf x y = Bf y x) (hQ : ∀ x, 2 * Q x = Bf x x)
     {ι : Type} [DecidableEq ι] (v : ι → X) (hv : ∀ j, 0 ≤ Q (v j)) (N : ℤ) (hN : 0 < N)
@@ -137,7 +137,7 @@ theorem quad_round_sum (hs : ∀ x y, Bf x y = Bf y x) (hQ : ∀ x, 2 * Q x = Bf
       refine Finset.sum_congr rfl fun j hj => ?_
       rw [Function.update_of_ne (fun h : j = i => hi (h ▸ hj))]
     rw [Finset.sum_insert hi, Finset.sum_insert hi, hs', Function.update_self, add_comm]
-    nlinarith
+    linarith
 
 theorem exists_pos_zsmul_mem_range {n : ℕ} (b : Module.Basis (Fin n) ℤ X) (φ : X →+ X)
     (hφ : Function.Injective φ) (x : X) : ∃ N : ℤ, 0 < N ∧ ∃ y, φ y = N • x := by
@@ -184,7 +184,7 @@ theorem exists_coset_minimiser :
     have h2 := hQφ (u - v)
     rw [h0, quad_zero hQ] at h2
     have : (1 : ℤ) ≤ g := by exact_mod_cast hg
-    nlinarith
+    linarith [one_le_mul_of_one_le_of_one_le this h1]
   obtain ⟨N, hN, y, hy⟩ := exists_pos_zsmul_mem_range b φ hinj x
   obtain ⟨m, hm⟩ := quad_round_sum hs hQ (fun j => φ (b j))
     (fun j => quad_nonneg hQ hp _) N hN (fun j => b.repr y j) Finset.univ
@@ -226,7 +226,7 @@ theorem exists_coset_minimiser :
         _ = n * Cc := by simp
     have h3 : 4 * (Q (x + φ χ) : ℝ) ≤ g * ∑ j, (Q (b j) : ℝ) := by exact_mod_cast h1
     have hg' : (0 : ℝ) ≤ g := by positivity
-    nlinarith
+    linarith [mul_le_mul_of_nonneg_left h2 hg']
   · intro q z
     have hz := hmin (χ + z)
     rw [map_add (f := _), ← add_assoc] at hz
@@ -236,6 +236,6 @@ theorem exists_coset_minimiser :
     rw [natCast_zsmul] at e2
     rw [e2]
     have hq0 : (0 : ℤ) ≤ q := by positivity
-    nlinarith
+    linarith [mul_nonneg hq0 (show 0 ≤ Bf (x + φ χ) (φ z) + Q (φ z) by linarith)]
 
 end GlobalTheory

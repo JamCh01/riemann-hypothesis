@@ -86,23 +86,25 @@ theorem add_le_mul_pow_of_sq_le_of_le_mul {t η R W : ℝ} (ht : 1 < t) (hη : �
   have h3 : 0 < 3 * t := by linarith
   have hη0 : 0 ≤ η := by rw [hη]; exact div_nonneg (by linarith) h3.le
   have key : η * (3 * t) = t - 1 := by rw [hη]; field_simp
-  have hηt : η < 1 / 3 := by nlinarith
+  have hηt : η < 1 / 3 := by rw [hη, div_lt_iff₀ h3]; linarith
   constructor
   ·
     have hW' : (1 - η) * R ≤ W := by linarith
-    have hsq : ((1 - η) * R) ^ 2 ≤ W ^ 2 := pow_le_pow_left₀ (by nlinarith) hW' 2
-    have hge : 1 ≤ t * (1 - η) ^ 2 := by nlinarith
-    nlinarith [mul_le_mul_of_nonneg_left hsq (by linarith : (0 : ℝ) ≤ t), sq_nonneg R]
+    have hsq : ((1 - η) * R) ^ 2 ≤ W ^ 2 := pow_le_pow_left₀ (mul_nonneg (by linarith) hR) hW' 2
+    have hge : 1 ≤ t * (1 - η) ^ 2 := by
+      linarith [mul_nonneg (show 0 ≤ t by linarith) hη0, mul_nonneg (show 0 ≤ t by linarith) (sq_nonneg η)]
+    linarith [mul_le_mul_of_nonneg_left hsq (by linarith : (0 : ℝ) ≤ t), mul_le_mul_of_nonneg_right hge (sq_nonneg R)]
   ·
     have hW' : W ≤ (1 + η) * R := by linarith
     have hsq : W ^ 2 ≤ ((1 + η) * R) ^ 2 := pow_le_pow_left₀ hW hW' 2
-    have hle : (1 + η) ^ 2 ≤ t := by nlinarith
-    nlinarith [mul_le_mul_of_nonneg_right hle (sq_nonneg R)]
+    have hle : (1 + η) ^ 2 ≤ t := by
+      linarith [mul_le_mul_of_nonneg_right ht.le hη0, mul_nonneg hη0 (show 0 ≤ 1 - η by linarith)]
+    linarith [mul_le_mul_of_nonneg_right hle (sq_nonneg R)]
 
 private lemma le_of_sq_le_sq_of_nonneg {a b : ℝ} (hb : 0 ≤ b) (h : a ^ 2 ≤ b ^ 2) : a ≤ b := by
   by_contra hab
   rw [not_le] at hab
-  nlinarith
+  exact absurd h (not_le.mpr (pow_lt_pow_left₀ hab hb two_ne_zero))
 
 theorem hsDist_section_mul_block : ∀ (P Q P' Q' : ℕ) (e : Option (Fin P' ⊕ Fin Q') ≃ (Fin P ⊕ Fin Q)) (j : UpqT P' Q' → UpqT P Q), IsBlockEmb e j → ∀ t : ℝ, 1 < t → ∃ δ : ℝ, 0 < δ ∧ ∀ (y : Sp P Q) (a : UpqT P Q), ptSq e y < δ → act a (baseVec e) = y → (∀ b, ‖UpqT.mat a (e none) (e (some b))‖ = ‖y (e (some b))‖) → (∀ i b, ‖(UpqT.mat a - 1) (e (some i)) (e (some b))‖ = ‖y (e (some i))‖ * ‖y (e (some b))‖ / ‖1 + y (e none)‖) → ∀ g : UpqT P' Q', ptSq e y + hsDist g ≤ t * hsDist (a * j g) ∧ hsDist (a * j g) ≤ t * (ptSq e y + hsDist g) := by
   intro P Q P' Q' e j hj t ht
@@ -126,13 +128,12 @@ theorem hsDist_section_mul_block : ∀ (P Q P' Q' : ℕ) (e : Option (Fin P' ⊕
   set S : ℝ := ∑ i, ‖y (e (some i))‖ ^ 2 with hS
   have hS0 : 0 ≤ S := by positivity
   have hpt : ptSq e y = ‖y (e none) - 1‖ ^ 2 + 2 * S := rfl
-  have hSpt : S ≤ ptSq e y := by nlinarith [sq_nonneg ‖y (e none) - 1‖]
+  have hSpt : S ≤ ptSq e y := by linarith [sq_nonneg ‖y (e none) - 1‖]
   have hSc : S < c ^ 2 := lt_of_le_of_lt hSpt hyc
   have hS1 : S < 1 := lt_of_le_of_lt hSpt hy1
 
   have hn1 : 1 ≤ ‖1 + y (e none)‖ := by
-    have h1 : ‖y (e none) - 1‖ < 1 := by
-      nlinarith [norm_nonneg (y (e none) - 1), sq_nonneg ‖y (e none) - 1‖]
+    have h1 : ‖y (e none) - 1‖ < 1 := (sq_lt_sq₀ (norm_nonneg _) zero_le_one).mp (by linarith)
     have h2 : (2 : ℂ) = (1 + y (e none)) - (y (e none) - 1) := by ring
     have h3 : ‖(2 : ℂ)‖ ≤ ‖1 + y (e none)‖ + ‖y (e none) - 1‖ := by
       rw [h2]; exact norm_sub_le _ _
@@ -164,7 +165,7 @@ theorem hsDist_section_mul_block : ∀ (P Q P' Q' : ℕ) (e : Option (Fin P' ⊕
     have hp : 0 ≤ (‖y (e (some i))‖ * ‖y (e (some b))‖) ^ 2 := sq_nonneg _
     calc (‖y (e (some i))‖ * ‖y (e (some b))‖) ^ 2 / ‖1 + y (e none)‖ ^ 2
         ≤ (‖y (e (some i))‖ * ‖y (e (some b))‖) ^ 2 / 1 :=
-          div_le_div_of_nonneg_left hp one_pos (by nlinarith)
+          div_le_div_of_nonneg_left hp one_pos (one_le_pow₀ hn1)
       _ = (‖y (e (some i))‖ * ‖y (e (some b))‖) ^ 2 := div_one _
   have hM2 : ‖M - 1‖ ^ 2 = ptSq e y + ‖Ep‖ ^ 2 := by
     rw [frob_split e (M - 1), hEp2, hpt]
