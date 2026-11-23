@@ -61,12 +61,12 @@ theorem exists_minor_of_li {F : Type} [Field F] {ρ d : ℕ} (u : Fin ρ → Fin
 
   have hspan : Submodule.span F (Set.range fun l : Fin d => fun k : Fin ρ => u k l) = ⊤ := by
     apply Submodule.eq_top_of_finrank_eq
-    have h1 := Matrix.rank_eq_finrank_span_cols (u : Matrix (Fin ρ) (Fin d) F)
+    have h1 := Matrix.finrank_span_range_col (u : Matrix (Fin ρ) (Fin d) F)
     have h2 := Matrix.rank_eq_finrank_span_row (u : Matrix (Fin ρ) (Fin d) F)
     have h3 : Module.finrank F (Submodule.span F (Set.range u)) = ρ := by
       rw [finrank_span_eq_card hu, Fintype.card_fin]
     rw [Module.finrank_fin_fun]
-    exact h1.symm.trans (h2.trans h3)
+    exact h1.trans (h2.trans h3)
   obtain ⟨κ, a, ha, hsp, hli⟩ := exists_linearIndependent' (K := F) (fun l : Fin d => fun k : Fin ρ => u k l)
   haveI : Finite κ := Finite.of_injective a ha
   haveI := Fintype.ofFinite κ
