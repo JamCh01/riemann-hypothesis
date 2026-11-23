@@ -31,11 +31,19 @@ lemma lagrange (c : Fin 3 → ℂ) {t1 t2 t3 g la : ℝ} (hg : 0 < g) (h1 : 1 �
     ‖c‖ ≤ 12 * la / g ^ 2 := by
   have hla : 0 ≤ la := (norm_nonneg _).trans p1
   have d1 : g ^ 2 ≤ |(t1 - t2) * (t1 - t3)| := by
-    rw [abs_of_nonneg (by nlinarith)]; nlinarith
+    rw [abs_of_nonneg (mul_nonneg_of_nonpos_of_nonpos (by linarith) (by linarith))]
+    calc g ^ 2 = g * g := sq g
+      _ ≤ (t2 - t1) * (t3 - t1) := mul_le_mul (by linarith) (by linarith) hg.le (by linarith)
+      _ = (t1 - t2) * (t1 - t3) := by ring
   have d2 : g ^ 2 ≤ |(t2 - t1) * (t2 - t3)| := by
-    rw [abs_of_nonpos (by nlinarith)]; nlinarith
+    rw [abs_of_nonpos (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))]
+    calc g ^ 2 = g * g := sq g
+      _ ≤ (t2 - t1) * (t3 - t2) := mul_le_mul (by linarith) (by linarith) hg.le (by linarith)
+      _ = -((t2 - t1) * (t2 - t3)) := by ring
   have d3 : g ^ 2 ≤ |(t3 - t1) * (t3 - t2)| := by
-    rw [abs_of_nonneg (by nlinarith)]; nlinarith
+    rw [abs_of_nonneg (mul_nonneg (by linarith) (by linarith))]
+    calc g ^ 2 = g * g := sq g
+      _ ≤ (t3 - t1) * (t3 - t2) := mul_le_mul (by linarith) (by linarith) hg.le (by linarith)
   have hg2 : 0 < g ^ 2 := by positivity
   have n1 : ((t1 - t2) * (t1 - t3) : ℂ) ≠ 0 := by
     have : (t1 - t2) * (t1 - t3) ≠ 0 := by intro h; rw [h, abs_zero] at d1; linarith
@@ -71,16 +79,21 @@ lemma lagrange (c : Fin 3 → ℂ) {t1 t2 t3 g la : ℝ} (hg : 0 < g) (h1 : 1 �
   rw [pi_norm_le_iff_of_nonneg (by positivity)]
   intro i
   fin_cases i
-  · have := key (t2 * t3) (t1 * t3) (t1 * t2) (by rw [abs_of_nonneg (by nlinarith)]; nlinarith)
-      (by rw [abs_of_nonneg (by nlinarith)]; nlinarith) (by rw [abs_of_nonneg (by nlinarith)]; nlinarith)
+  · have := key (t2 * t3) (t1 * t3) (t1 * t2)
+      (by rw [abs_of_nonneg (mul_nonneg (by linarith) (by linarith))]; calc t2 * t3 ≤ 2 * 2 := mul_le_mul (by linarith) (by linarith) (by linarith) (by norm_num)
+          _ = 4 := by norm_num)
+      (by rw [abs_of_nonneg (mul_nonneg (by linarith) (by linarith))]; calc t1 * t3 ≤ 2 * 2 := mul_le_mul (by linarith) (by linarith) (by linarith) (by norm_num)
+          _ = 4 := by norm_num)
+      (by rw [abs_of_nonneg (mul_nonneg (by linarith) (by linarith))]; calc t1 * t2 ≤ 2 * 2 := mul_le_mul (by linarith) (by linarith) (by linarith) (by norm_num)
+          _ = 4 := by norm_num)
     have e : c 0 = qv c t1 * ((t2 * t3 : ℝ) : ℂ) / (((t1 - t2) * (t1 - t3) : ℝ) : ℂ)
         + qv c t2 * ((t1 * t3 : ℝ) : ℂ) / (((t2 - t1) * (t2 - t3) : ℝ) : ℂ)
         + qv c t3 * ((t1 * t2 : ℝ) : ℂ) / (((t3 - t1) * (t3 - t2) : ℝ) : ℂ) := by
       simp only [qv]; push_cast; field_simp; ring
     show ‖c 0‖ ≤ _
     rw [e]; exact this
-  · have := key (-(t2 + t3)) (-(t1 + t3)) (-(t1 + t2)) (by rw [abs_le]; constructor <;> nlinarith)
-      (by rw [abs_le]; constructor <;> nlinarith) (by rw [abs_le]; constructor <;> nlinarith)
+  · have := key (-(t2 + t3)) (-(t1 + t3)) (-(t1 + t2)) (by rw [abs_le]; constructor <;> linarith)
+      (by rw [abs_le]; constructor <;> linarith) (by rw [abs_le]; constructor <;> linarith)
     have e : c 1 = qv c t1 * ((-(t2 + t3) : ℝ) : ℂ) / (((t1 - t2) * (t1 - t3) : ℝ) : ℂ)
         + qv c t2 * ((-(t1 + t3) : ℝ) : ℂ) / (((t2 - t1) * (t2 - t3) : ℝ) : ℂ)
         + qv c t3 * ((-(t1 + t2) : ℝ) : ℂ) / (((t3 - t1) * (t3 - t2) : ℝ) : ℂ) := by
@@ -202,7 +215,7 @@ theorem quadraticSublevelDecay' : SUB := by
       have e : K = ((1 + s ^ 2) ^ 2) ^ (-δ / 2) := by
         rw [hK, ← Real.rpow_natCast (1 + s ^ 2) 2, ← Real.rpow_mul (by positivity)]; congr 1; push_cast; ring
       rw [e]
-      exact Real.rpow_le_rpow_of_nonpos (by linarith) (by rw [← hs4]; nlinarith) (by linarith)
+      exact Real.rpow_le_rpow_of_nonpos (by linarith) (by rw [← hs4]; linarith [sq_nonneg s, show (1 + s ^ 2) ^ 2 = 1 + 2 * s ^ 2 + s ^ 4 by ring]) (by linarith)
     have hB : 1 / (2 * s) ≤ (1 + M) ^ (-δ / 2) := by
       calc 1 / (2 * s) ≤ (1 + s)⁻¹ := by
             rw [one_div]; exact inv_anti₀ (by positivity) (by linarith)
@@ -210,7 +223,7 @@ theorem quadraticSublevelDecay' : SUB := by
             rw [← Real.rpow_natCast, ← Real.rpow_mul (by positivity), ← Real.rpow_neg_one]; norm_num
         _ ≤ (1 + M) ^ (-(1:ℝ) / 4) := by
             apply Real.rpow_le_rpow_of_nonpos (by linarith) _ (by norm_num)
-            rw [← hs4]; nlinarith [pow_pos hs0 3]
+            rw [← hs4]; linarith [hs0, sq_nonneg s, pow_pos hs0 3, show (1 + s) ^ 4 = 1 + 4 * s + 6 * s ^ 2 + 4 * s ^ 3 + s ^ 4 by ring]
         _ ≤ (1 + M) ^ (-δ / 2) := Real.rpow_le_rpow_of_exponent_le (by linarith) (by linarith)
     have e2 : 2 * (5 / s) = 20 * (1 / (2 * s)) := by field_simp; ring
     have hX : 0 ≤ (1 + M) ^ (-δ / 2) := by positivity
